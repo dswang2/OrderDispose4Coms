@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<!--
+    <span style="font-size:18px;">
+-->
+        <style name="dialogstyle" parent="android:Animation">
+            <item name="@android:windowEnterAnimation">@anim/dialog_enter</item>
+            <item name="@android:windowExitAnimation">@anim/dialog_exit</item>
+        </style>
+<!--
+    </span>
+-->
+</resources>

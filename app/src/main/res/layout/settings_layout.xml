@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5px"
+        android:layout_marginLeft="20px"
+        android:layout_marginRight="20px"
+        android:layout_marginTop="10px"
+        android:background="@drawable/set_bg"
+        android:gravity="center_vertical"
+        android:paddingBottom="5px"
+        android:paddingTop="5px">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="15px"
+            android:layout_marginRight="15px"
+            android:text="新订单自动打印"
+            android:textColor="@color/black"
+            android:textSize="20px" />
+
+
+        <ToggleButton
+            android:id="@+id/set_tb_print"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_marginLeft="15px"
+            android:layout_marginRight="30px"
+            android:background="@android:color/transparent"
+            android:button="@drawable/switch_btn"
+            android:checked="false"
+            android:gravity="center"
+            android:text=""
+            android:textOff=""
+            android:textOn=""
+            android:visibility="visible" />
+    </RelativeLayout>
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5px"
+        android:layout_marginLeft="20px"
+        android:layout_marginRight="20px"
+        android:layout_marginTop="5px"
+        android:background="@drawable/set_bg"
+        android:gravity="center_vertical"
+        android:paddingBottom="5px"
+        android:paddingTop="5px">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="15px"
+            android:layout_marginRight="15px"
+            android:text="新订单语音提示"
+            android:textColor="@color/black"
+            android:textSize="20px" />
+
+
+        <ToggleButton
+            android:id="@+id/set_tb_voice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_marginLeft="15px"
+            android:layout_marginRight="30px"
+            android:background="@android:color/transparent"
+            android:button="@drawable/switch_btn"
+            android:checked="false"
+            android:gravity="center"
+            android:text=""
+            android:textOff=""
+            android:textOn=""
+            android:visibility="visible" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10px"
+        android:layout_marginLeft="20px"
+        android:layout_marginRight="20px"
+        android:layout_marginTop="5px"
+        android:background="@drawable/set_bg"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingBottom="5px"
+        android:paddingTop="5px">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="15px"
+            android:layout_marginRight="15px"
+            android:layout_weight="1"
+            android:text="订单打印重复数"
+            android:textColor="@color/black"
+            android:textSize="20px" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end|center_vertical"
+            android:layout_marginLeft="15px"
+            android:layout_marginRight="30px"
+            android:layout_weight="1"
+            android:gravity="end"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/set_bt_count_up"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#00ffffff"
+                android:text="+"
+                android:textSize="20px" />
+
+            <TextView
+                android:id="@+id/set_tv_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="1"
+                android:textColor="#000000"
+                android:textSize="20px" />
+
+            <Button
+                android:id="@+id/set_bt_count_down"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#00ffffff"
+                android:text="-"
+                android:textSize="20px" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="次"
+                android:textColor="@color/black"
+                android:textSize="20px" />
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5px"
+        android:layout_marginLeft="20px"
+        android:layout_marginRight="20px"
+        android:layout_marginTop="5px"
+        android:background="@drawable/set_bg"
+        android:gravity="center_vertical"
+        android:paddingBottom="5px"
+        android:paddingTop="5px">
+
+        <EditText
+            android:id="@+id/set_et_ip"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="15px"
+            android:layout_marginRight="15px"
+            android:background="@null"
+            android:focusable="false"
+            android:maxLines="1"
+            android:singleLine="true"
+            android:text="服务器地址配置"
+            android:textColor="@color/black"
+            android:textSize="20px" />
+
+
+        <Button
+            android:id="@+id/set_bt_ipset"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_marginLeft="15px"
+            android:layout_marginRight="30px"
+            android:gravity="center"
+            android:text="设置" />
+    </RelativeLayout>
+
+    <Button
+        android:id="@+id/set_bt_back"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="10px"
+        android:layout_marginLeft="40px"
+        android:layout_marginRight="40px"
+        android:layout_marginTop="10px"
+        android:background="@drawable/set_bg"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingBottom="10px"
+        android:paddingLeft="30px"
+        android:paddingRight="30px"
+        android:paddingTop="10px"
+        android:text="确认修改并返回"
+        android:textSize="20px" />
+</LinearLayout>

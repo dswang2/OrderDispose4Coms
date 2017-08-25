@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 定义按钮按下时的图片 -->
+    <item android:drawable="@drawable/print_btn_select" android:state_pressed="true"/>
+    <item android:state_selected="true"   android:drawable="@drawable/print_btn_select" />
+    <!-- 定义按钮默认的图片 -->
+    <item android:drawable="@drawable/print_btn_normal"/>
+</selector>

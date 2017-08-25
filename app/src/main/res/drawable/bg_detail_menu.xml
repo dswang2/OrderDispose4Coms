@@ -1,0 +1,27 @@
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+
+    <corners
+        android:bottomLeftRadius="0dp"
+        android:bottomRightRadius="0dp"
+        android:topLeftRadius="10px"
+        android:topRightRadius="10px" />
+
+
+    <!--
+    <corners  android:topLeftRadius="16dp"&lt;!&ndash;上面左圆角的半径&ndash;&gt;
+    android:topRightRadius="16dp"          &lt;!&ndash;上面右圆角的半径&ndash;&gt;
+    android:bottomLeftRadius="0dp"         &lt;!&ndash;下面左圆角的半径&ndash;&gt;
+    android:bottomRightRadius="0dp"/>   &lt;!&ndash;下面右圆角的半径&ndash;&gt;-->
+
+    <!--<gradient
+        android:angle="270"
+        android:endColor="#ffffff"
+        android:startColor="#ffffff" />-->
+
+    <solid android:color="#77255D80"></solid>
+
+    <stroke
+        android:width="0px"
+        android:color="#255D80" />
+</shape>
