@@ -10,10 +10,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
@@ -23,6 +27,8 @@ import com.dbstar.orderdispose.R;
 import com.dbstar.orderdispose.constant.Constant;
 import com.dbstar.orderdispose.utils.ToastUtils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -41,6 +47,9 @@ public class SettingActivity extends AppCompatActivity implements CompoundButton
     private Button set_bt_ipset;
     private int print_count = 1;    //打印次数
     private MyApplication application;
+    private List<String> typeList;
+    private ArrayAdapter<String> adapter;
+    private Spinner mSet_sp_type;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +78,13 @@ public class SettingActivity extends AppCompatActivity implements CompoundButton
 
         sp = this.getSharedPreferences("config", MODE_PRIVATE);
         sp_editor = sp.edit();
+
+        //订单类型
+        mSet_sp_type = (Spinner) findViewById(R.id.set_sp_type);
+        typeList = new ArrayList<String>();
+        typeList.add("点餐送物");
+        typeList.add("电影点播");
+        initSpinner();
 
         //新订单自动打印
         boolean isPrintAuto = sp.getBoolean(Constant.AUTO_PRINT,false);
@@ -101,11 +117,44 @@ public class SettingActivity extends AppCompatActivity implements CompoundButton
         set_bt_back.setOnClickListener(this);
 
 
+
     }
 
+    private void initSpinner() {
+        adapter = new ArrayAdapter(this,android.R.layout.simple_spinner_item, typeList);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mSet_sp_type.setAdapter(adapter);
+        mSet_sp_type.setOnItemSelectedListener(new Spinner.OnItemSelectedListener(){
+            public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+                // TODO Auto-generated method stub
+		        /* 将所选mSet_sp_type 的值带入myTextView 中*/
+		        ToastUtils.showSafeToast(SettingActivity.this,"您选择的是："+ adapter.getItem(arg2));
+		        /* 将mSet_sp_type 显示*/
+                arg0.setVisibility(View.VISIBLE);
+            }
+            public void onNothingSelected(AdapterView<?> arg0) {
+                // TODO Auto-generated method stub
+                arg0.setVisibility(View.VISIBLE);
+            }
+        });
+        /*下拉菜单弹出的内容选项触屏事件处理*/
+        mSet_sp_type.setOnTouchListener(new Spinner.OnTouchListener(){
+            public boolean onTouch(View v, MotionEvent event) {
+                // TODO Auto-generated method stub
+                /**
+                 *
+                 */
+                return false;
+            }
+        });
+        /*下拉菜单弹出的内容选项焦点改变事件处理*/
+        mSet_sp_type.setOnFocusChangeListener(new Spinner.OnFocusChangeListener(){
+            public void onFocusChange(View v, boolean hasFocus) {
+                // TODO Auto-generated method stub
 
-
-
+            }
+        });
+    }
 
 
     private void openMainActivity() {

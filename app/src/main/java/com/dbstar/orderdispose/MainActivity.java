@@ -66,8 +66,6 @@ import com.gprinter.service.GpPrintService;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -507,14 +505,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
-    //获取未处理电影订单列表
-    private void getUnHandleMoviesOrderList() {
+    //获取未处理点餐订单列表
+    public void getUnHandleOrderList() {
+
+        datas.clear();
+
         try {
-            HttpUtil.sendOkHttpRequest(application.getServiceIP() + "/bar/media/getMediaNewOrder.do", new Callback() {
+            HttpUtil.sendOkHttpRequest(application.getServiceIP() + URL.NewOrder, new Callback() {
 
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
                     String json = response.body().string();
+                    Log.d(TAG, "未处理订单: " + json);
+
                     //解析访问网络获取到的 json数据 ，打印出来
                     Order order = null;
                     try {
@@ -522,22 +525,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                    Log.d(TAG, "未处理电影订单: " + order);
+                    Log.d(TAG, "未处理点餐订单: " + order);
 
+
+                    // 通知主线程，刷新订单列表
                     if (order != null) {
                         datas.addAll(order.getData());
                     }
 
-                    Collections.sort(datas, new Comparator() {
-                        public int compare(Object a, Object b) {
-                            String pre = ((Order.OrderBean) a).getCreatedate();
-                            String next = ((Order.OrderBean) b).getCreatedate();
-                            return next.compareTo(pre);
-                        }
-                    });
-
-                    // 设置 全局最后一次访问网络获取的 订单数目
-                    application.setOrderListSize(datas.size());
+                    // 设置 最新订单的时间
+                    application.setOrdersCode(json.hashCode());
 
                     // 再次确定类型
                     flag_list = UNHANDLELIST;
@@ -571,108 +568,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         datasDetail.clear();
                         mHandler.sendEmptyMessage(4);
                     }
-
-                }
-
-                @Override
-                public void onFailure(Call call, IOException e) {
-
-                }
-            });
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    //获取未处理点餐订单列表
-    public void getUnHandleOrderList() {
-
-        datas.clear();
-
-        try {
-            HttpUtil.sendOkHttpRequest(application.getServiceIP() + URL.NewOrder, new Callback() {
-
-                @Override
-                public void onResponse(Call call, Response response) throws IOException {
-                    String json = response.body().string();
-                    Log.d(TAG, "未处理订单: " + json);
-
-                    //解析访问网络获取到的 json数据 ，打印出来
-                    Order order = null;
-                    try {
-                        order = new Gson().fromJson(json, Order.class);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    Log.d(TAG, "未处理点餐订单: " + order);
-
-
-                    // 通知主线程，刷新订单列表
-                    if (order != null) {
-                        datas.addAll(order.getData());
-                    }
-                    // 获取未处理电影订单列表
-                    getUnHandleMoviesOrderList();
                 }
 
                 @Override
                 public void onFailure(Call call, IOException e) {
                     // 获取未处理电影订单列表
-                    getUnHandleMoviesOrderList();
                 }
             });
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-    }
-
-    // 已处理电影订单列表
-    private void getHandleMoviesOrderList() {
-        try {
-            HttpUtil.sendOkHttpRequest(application.getServiceIP() + "/bar/media/getMediaOldOrder.do", new Callback() {
-
-                @Override
-                public void onResponse(Call call, Response response) throws IOException {
-                    String json = response.body().string();
-                    //解析访问网络获取到的 json数据 ，打印出来
-                    Order order = null;
-                    try {
-                        order = new Gson().fromJson(json, Order.class);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    Log.d(TAG, "已处理电影订单: " + order);
-
-                    if (order != null) {
-                        datas.addAll(order.getData());
-                    }
-
-                    Collections.sort(datas, new Comparator() {
-                        public int compare(Object a, Object b) {
-                            String pre = ((Order.OrderBean) a).getCreatedate();
-                            String next = ((Order.OrderBean) b).getCreatedate();
-                            return next.compareTo(pre);
-                        }
-                    });
-
-                    mHandler.sendEmptyMessage(2);
-
-                    //通知主线程，刷新详情列表，置空详情列表
-                    orderDetail = null;
-                    datasDetail.clear();
-                    mHandler.sendEmptyMessage(4);
-
-                }
-
-                @Override
-                public void onFailure(Call call, IOException e) {
-
-                }
-            });
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     //获取 历史订单列表
@@ -698,12 +604,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         datas.addAll(order.getData());
                     }
 
-                    getHandleMoviesOrderList();
+                    mHandler.sendEmptyMessage(2);
+
+                    //通知主线程，刷新详情列表，置空详情列表
+                    orderDetail = null;
+                    datasDetail.clear();
+                    mHandler.sendEmptyMessage(4);
                 }
 
                 @Override
                 public void onFailure(Call call, IOException e) {
-                    getHandleMoviesOrderList();
                 }
             });
         } catch (Exception e) {

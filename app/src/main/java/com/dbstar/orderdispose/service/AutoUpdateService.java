@@ -169,49 +169,11 @@ public class AutoUpdateService extends Service {
                         datas.addAll(order.getData());
                     }
 
-                    getUnHandleMovieOrderList();
+                    int ordersCodeNew = json.hashCode();
+                    int ordersCodeOld = application.getOrdersCode();
 
-                }
-
-                @Override
-                public void onFailure(Call call, IOException e) {
-                    getUnHandleMovieOrderList();
-                }
-            });
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-    //获取未处理电影订单
-    private void getUnHandleMovieOrderList() {
-        try {
-            HttpUtil.sendOkHttpRequest(application.getServiceIP() + "/bar/media/getMediaNewOrder.do", new Callback() {
-                @Override
-                public void onResponse(Call call, Response response) throws IOException {
-                    String json = response.body().string();
-                    Order order =  null;
-                    //解析访问网络获取到的 json数据 ，打印出来
-                    try {
-                        order = new Gson().fromJson(json, Order.class);
-                    }catch (Exception e){
-                        e.printStackTrace();
-                    }
-                    Log.d(TAG, "onResponse: " + order);
-
-                    if (order != null) {
-                        datas.addAll(order.getData());
-                    }
-
-
-                    int preSize = application.getOrderListSize();
-                    int nextSize = datas.size();
-
-
-
-                    Log.d(TAG, "onResponse: preSize = " + preSize + " nextSize = " + nextSize);
                     // 新的订单列表 长度 大于原有的列表，视为有新消息
-                    if (preSize < nextSize) {
+                    if (ordersCodeNew != ordersCodeOld) {
                         if(application.isVoiceEnable() && mediaPlayer!=null){
                             mediaPlayer.start();
                         }
@@ -220,17 +182,18 @@ public class AutoUpdateService extends Service {
                             onMessageListener.onUpdate(Constant.MSG_NEW_ORDER);
                         }
                     }
+
                 }
 
                 @Override
                 public void onFailure(Call call, IOException e) {
-
                 }
             });
         }catch (Exception e){
             e.printStackTrace();
         }
     }
+
 
     @Nullable
     @Override
