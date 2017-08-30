@@ -19,7 +19,7 @@ public class URLFilm {
     //标记已经处理完成
     public static final String OrderMark = "/bar/media/getMediaOldOrderStaus.do";
     //订单号
-    public static final String OrderMarkID = "ordersId=";
+    public static final String OrderMarkID = "ordersId";
     //标记订单已经处理完毕
     public static final String OrderMarkFLAG = "flag=0";
 }

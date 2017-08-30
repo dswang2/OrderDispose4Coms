@@ -5,20 +5,26 @@ package com.dbstar.orderdispose.constant;
  */
 public class Constant {
 
-    //订单类型：点菜
-    public static final String ORDER_TYPE_MEAL = "0";
+    //订单类型：点餐购物
+    public static final String ORDER_TYPE_MEAL_SHOPING_SERVICE = "9";
 
-    //订单类型：购物
-    public static final String ORDER_TYPE_SHOPING = "1";
+    //订单类型：点餐&购物
+    public static final String ORDER_TYPE_SHOPPING = "0";
 
-    //订单类型：购物
-    public static final String ORDER_TYPE_FILM = "2";
+    //订单类型：送物
+    public static final String ORDER_TYPE_SERVICE = "2";
+
+    //订单类型：电影
+    public static final String ORDER_TYPE_FILM = "3";
 
     //购物电话
     public static final String PHONE_NUMBER_SHOPING = "8188";
 
     //订餐电话
     public static final String PHONE_NUMBER_MEAL = "1188";
+
+    //客房送物电话
+    public static final String PHONE_NUMBER_SERVICE = "";
 
     //最大打印次数
     public static final int PRINT_MAX_COUNT = 10;
@@ -40,4 +46,5 @@ public class Constant {
     public static final int CHECK_TIME = 1 * 1 * 10 * 1000;
 
     public static final String SERVICE_IP = "service_ip";
+
 }

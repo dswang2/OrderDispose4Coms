@@ -82,8 +82,11 @@ public class SettingActivity extends AppCompatActivity implements CompoundButton
         //订单类型
         mSet_sp_type = (Spinner) findViewById(R.id.set_sp_type);
         typeList = new ArrayList<String>();
-        typeList.add("点餐送物");
-        typeList.add("电影点播");
+        typeList.add("电影点播订单");
+        typeList.add("客房送物订单");
+        typeList.add("点餐购物订单");
+        typeList.add("点餐购物送物");
+
         initSpinner();
 
         //新订单自动打印
@@ -124,11 +127,30 @@ public class SettingActivity extends AppCompatActivity implements CompoundButton
         adapter = new ArrayAdapter(this,android.R.layout.simple_spinner_item, typeList);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mSet_sp_type.setAdapter(adapter);
+        // 设置默认值
+        setSpinnerDefaultType();
         mSet_sp_type.setOnItemSelectedListener(new Spinner.OnItemSelectedListener(){
             public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
                 // TODO Auto-generated method stub
-		        /* 将所选mSet_sp_type 的值带入myTextView 中*/
-		        ToastUtils.showSafeToast(SettingActivity.this,"您选择的是："+ adapter.getItem(arg2));
+		        // atg2 是 typeList 的顺序
+                switch (arg2){
+                    case 0:
+                        application.setOrdersType(Constant.ORDER_TYPE_FILM);
+                        sp_editor.putString(Constant.ORDERS_TYPE,application.getOrdersType());
+                        break;
+                    case 1:
+                        application.setOrdersType(Constant.ORDER_TYPE_SERVICE);
+                        sp_editor.putString(Constant.ORDERS_TYPE,application.getOrdersType());
+                        break;
+                    case 2:
+                        application.setOrdersType(Constant.ORDER_TYPE_SHOPPING);
+                        sp_editor.putString(Constant.ORDERS_TYPE,application.getOrdersType());
+                        break;
+                    case 3:
+                        application.setOrdersType(Constant.ORDER_TYPE_MEAL_SHOPING_SERVICE);
+                        sp_editor.putString(Constant.ORDERS_TYPE,application.getOrdersType());
+                        break;
+                }
 		        /* 将mSet_sp_type 显示*/
                 arg0.setVisibility(View.VISIBLE);
             }
@@ -140,10 +162,6 @@ public class SettingActivity extends AppCompatActivity implements CompoundButton
         /*下拉菜单弹出的内容选项触屏事件处理*/
         mSet_sp_type.setOnTouchListener(new Spinner.OnTouchListener(){
             public boolean onTouch(View v, MotionEvent event) {
-                // TODO Auto-generated method stub
-                /**
-                 *
-                 */
                 return false;
             }
         });
@@ -154,6 +172,23 @@ public class SettingActivity extends AppCompatActivity implements CompoundButton
 
             }
         });
+    }
+
+    private void setSpinnerDefaultType() {
+        switch (application.getOrdersType()){
+            case Constant.ORDER_TYPE_FILM:
+                mSet_sp_type.setSelection(0,true);
+                break;
+            case Constant.ORDER_TYPE_SERVICE:
+                mSet_sp_type.setSelection(1,true);
+                break;
+            case Constant.ORDER_TYPE_SHOPPING:
+                mSet_sp_type.setSelection(2,true);
+                break;
+            case Constant.ORDER_TYPE_MEAL_SHOPING_SERVICE:
+                mSet_sp_type.setSelection(3,true);
+                break;
+        }
     }
 
 
@@ -201,6 +236,7 @@ public class SettingActivity extends AppCompatActivity implements CompoundButton
             //引导按钮监听
             case R.id.set_bt_back:
                 //保存打印次数
+                sp_editor.putString(Constant.ORDERS_TYPE,application.getOrdersType());
                 sp_editor.putInt(Constant.PRINT_COUNT,print_count);
                 sp_editor.commit();
                 application.setPrint_count(print_count);
@@ -231,6 +267,7 @@ public class SettingActivity extends AppCompatActivity implements CompoundButton
         String service = "";
         if(set_et_ip.hasFocus()){
             //有焦点，说明在编辑状态，收集参数，保存，显示为只读
+            set_bt_ipset.setText("设置");
             service = set_et_ip.getText().toString();
 
             //对IP地址进行判断，确定是IP地址进行保存，否则toast提示
@@ -248,6 +285,7 @@ public class SettingActivity extends AppCompatActivity implements CompoundButton
             set_et_ip.setFocusableInTouchMode(false);
         }else{
             //无焦点，说明在只读状态，点击后设置为可编辑状态
+            set_bt_ipset.setText("保存");
             service = sp.getString(Constant.SERVICE_IP,"");
             if("".equals(service)){
                 set_et_ip.setText("请输入服务器IP");

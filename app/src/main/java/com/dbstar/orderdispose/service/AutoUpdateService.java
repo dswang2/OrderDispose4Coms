@@ -165,14 +165,29 @@ public class AutoUpdateService extends Service {
                     }
                     Log.d(TAG, "onResponse: " + order);
 
-                    if (order != null) {
-                        datas.addAll(order.getData());
+                    // 设置订单列表数据
+                    if(Constant.ORDER_TYPE_SHOPPING.equals(application.getOrdersType()) || Constant.ORDER_TYPE_SERVICE.equals(application.getOrdersType())){
+                        //点餐购物订单，要分开处理
+                        if (order != null && order.getData() != null) {
+                            for (Order.OrderBean orderBean : order.getData()) {
+                                if (application.getOrdersType().equals(orderBean.getStatus())) {
+                                    datas.add(orderBean);
+                                }
+                            }
+                        }
+                    }else if(Constant.ORDER_TYPE_FILM.equals(application.getOrdersType()) || Constant.ORDER_TYPE_MEAL_SHOPING_SERVICE.equals(application.getOrdersType())){
+                        //电影订单，一个接口
+                        if (order != null && order.getData() != null) {
+                            datas.addAll(order.getData());
+                        }
+                    }else {
+                        datas.clear();
                     }
 
-                    int ordersCodeNew = json.hashCode();
+                    int ordersCodeNew = datas.size();
                     int ordersCodeOld = application.getOrdersCode();
 
-                    // 新的订单列表 长度 大于原有的列表，视为有新消息
+                    // 新的订单列表 长度 不等于原有的列表，视为有新消息
                     if (ordersCodeNew != ordersCodeOld) {
                         if(application.isVoiceEnable() && mediaPlayer!=null){
                             mediaPlayer.start();

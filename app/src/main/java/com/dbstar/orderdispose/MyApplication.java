@@ -33,12 +33,16 @@ public class MyApplication extends Application {
         setIsVoiceEnable(sp.getBoolean(Constant.VOICE_ENABLE, false));
         setPrint_count(sp.getInt(Constant.PRINT_COUNT,1));
         setServiceIP(sp.getString(Constant.SERVICE_IP,""));
-        setOrdersType(sp.getString(Constant.ORDERS_TYPE,""));
+        setOrdersType(sp.getString(Constant.ORDERS_TYPE,Constant.ORDER_TYPE_SHOPPING));
+    }
+
+    public void setOrdersType(String ordersType) {
+        this.ordersType = ordersType;
         setUrl();
     }
 
-    private void setOrdersType(String ordersType) {
-        this.ordersType = ordersType;
+    public String getOrdersType(){
+        return ordersType;
     }
 
     public String getServiceIP() {
@@ -82,7 +86,7 @@ public class MyApplication extends Application {
     }
 
     private void setUrl() {
-        switch (ordersType){
+        switch (getOrdersType()){
             case Constant.ORDER_TYPE_FILM:
                 URL.IP = URLFilm.IP;
                 URL.OldOrder = URLFilm.OldOrder;
@@ -93,7 +97,9 @@ public class MyApplication extends Application {
                 URL.OrderMarkID = URLFilm.OrderMarkID;
                 URL.OrderMarkFLAG = URLFilm.OrderMarkFLAG;
                 break;
-            default:
+            case Constant.ORDER_TYPE_SHOPPING:
+            case Constant.ORDER_TYPE_SERVICE:
+            case Constant.ORDER_TYPE_MEAL_SHOPING_SERVICE:
                 URL.IP = URLShopping.IP;
                 URL.OldOrder = URLShopping.OldOrder;
                 URL.NewOrder = URLShopping.NewOrder;
@@ -102,6 +108,7 @@ public class MyApplication extends Application {
                 URL.OrderMark = URLShopping.OrderMark;
                 URL.OrderMarkID = URLShopping.OrderMarkID;
                 URL.OrderMarkFLAG = URLShopping.OrderMarkFLAG;
+                break;
         }
     }
 }

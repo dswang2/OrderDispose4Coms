@@ -431,14 +431,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     //根据订单号，获取详情数据
     public void getDetailList(String orderStatus, String seqnumber, final Boolean isPrintOnGet) {
-        String urlOrderDetail ;
-        if ("0".equals(orderStatus) || "2".equals(orderStatus)) {
-            orderType = "Shoping";
-            urlOrderDetail = application.getServiceIP() + URL.OrderItem + "?" + URL.NUMBER + "=" + seqnumber;
-        }else {
-            orderType = "Movie";
-            urlOrderDetail = application.getServiceIP() + "/bar/media/getMediaOrderItem.do?ordersId=" + seqnumber;
-        }
+        String urlOrderDetail = application.getServiceIP() + URL.OrderItem + "?" + URL.NUMBER + "=" + seqnumber;
         try {
             HttpUtil.sendOkHttpRequest(urlOrderDetail, new Callback() {
 
@@ -492,9 +485,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             main_tv_detailcount.setText("" + orderDetail.getTotalCount());//总数量
             main_tv_detailmonney.setText("" + orderDetail.getTotalMoney());//总金额
             //设置电话号码
-            if (Constant.ORDER_TYPE_SHOPING.equals(orderDetail.getOrderType())) {
+            if (Constant.ORDER_TYPE_SHOPPING.equals(orderDetail.getOrderType())) {
                 //
-            } else if (Constant.ORDER_TYPE_MEAL.equals(orderDetail.getOrderType())) {
+            } else if (Constant.ORDER_TYPE_SERVICE.equals(orderDetail.getOrderType())) {
                 //
             }
         } else {
@@ -527,14 +520,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
                     Log.d(TAG, "未处理点餐订单: " + order);
 
-
-                    // 通知主线程，刷新订单列表
-                    if (order != null) {
-                        datas.addAll(order.getData());
+                    // 设置订单列表数据
+                    if(Constant.ORDER_TYPE_SHOPPING.equals(application.getOrdersType()) || Constant.ORDER_TYPE_SERVICE.equals(application.getOrdersType())){
+                        //点餐购物订单，要分开处理
+                        if (order != null && order.getData() != null) {
+                            for (Order.OrderBean orderBean : order.getData()) {
+                                if (application.getOrdersType().equals(orderBean.getStatus())) {
+                                    datas.add(orderBean);
+                                }
+                            }
+                        }
+                    }else if(Constant.ORDER_TYPE_FILM.equals(application.getOrdersType()) || Constant.ORDER_TYPE_MEAL_SHOPING_SERVICE.equals(application.getOrdersType())){
+                        //电影订单，一个接口
+                        if (order != null && order.getData() != null) {
+                            datas.addAll(order.getData());
+                        }
+                    }else {
+                        datas.clear();
                     }
 
+
                     // 设置 最新订单的时间
-                    application.setOrdersCode(json.hashCode());
+                    application.setOrdersCode(datas.size());
 
                     // 再次确定类型
                     flag_list = UNHANDLELIST;
@@ -600,8 +607,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
                     Log.d(TAG, "未处理订单: " + order);
 
-                    if (order != null) {
-                        datas.addAll(order.getData());
+
+                    // 设置订单列表数据
+                    if(Constant.ORDER_TYPE_SHOPPING.equals(application.getOrdersType()) || Constant.ORDER_TYPE_SERVICE.equals(application.getOrdersType())){
+                        //点餐购物订单，要分开处理
+                        if (order != null && order.getData() != null) {
+                            for (Order.OrderBean orderBean : order.getData()) {
+                                if (application.getOrdersType().equals(orderBean.getStatus())) {
+                                    datas.add(orderBean);
+                                }
+                            }
+                        }
+                    }else if(Constant.ORDER_TYPE_FILM.equals(application.getOrdersType()) || Constant.ORDER_TYPE_MEAL_SHOPING_SERVICE.equals(application.getOrdersType())){
+                        //电影订单，一个接口
+                        if (order != null && order.getData() != null) {
+                            datas.addAll(order.getData());
+                        }
+                    }else {
+                        datas.clear();
                     }
 
                     mHandler.sendEmptyMessage(2);
@@ -628,15 +651,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * @param seqnumber ,订单编号
      */
     public void markOrderCompled(String seqnumber) {
-        String markUrk;
-        if("Shoping".equals(orderType)) {
-            markUrk = application.getServiceIP() + URL.OrderMark + "?" + URL.OrderMarkID + "=" + seqnumber + "&" + URL.OrderMarkFLAG;
-        }else if("Movie".equals(orderType)){
-            markUrk = application.getServiceIP() + "/bar/media/getMediaOldOrderStaus.do?ordersId=" + seqnumber;
-        }else {
-            markUrk = null;
-        }
-
+        String markUrk = application.getServiceIP() + URL.OrderMark + "?" + URL.OrderMarkID + "=" + seqnumber + "&" + URL.OrderMarkFLAG;
         try {
             HttpUtil.sendOkHttpRequest(markUrk, new Callback() {
                 @Override
@@ -790,11 +805,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         esc.addPrintAndLineFeed();
         esc.addText("时间：" + orderTime + "\n");
         esc.addPrintAndLineFeed();
-        if (Constant.ORDER_TYPE_SHOPING.equals(orderDetail.getOrderType())) {
-            esc.addText("购物电话：" + Constant.PHONE_NUMBER_SHOPING + "\n");
-        } else if (Constant.ORDER_TYPE_MEAL.equals(orderDetail.getOrderType())) {
-            esc.addText("订餐电话：" + Constant.PHONE_NUMBER_MEAL + "\n");
-        }
+//        if (Constant.ORDER_TYPE_SHOPPING.equals(orderDetail.getOrderType())) {
+//            esc.addText("购物电话：" + Constant.PHONE_NUMBER_SHOPING + "\n");
+//        } else if (Constant.ORDER_TYPE_SERVICE.equals(orderDetail.getOrderType())) {
+//            esc.addText("客房送物电话：" + Constant.PHONE_NUMBER_SERVICE + "\n");
+//        }
 
         esc.addPrintAndLineFeed();
         esc.addText("客户签名：\n");
@@ -825,22 +840,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
-private class OnOrderListSwipeRefreshListener implements SwipeRefreshLayout.OnRefreshListener {
-    @Override
-    public void onRefresh() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                if (flag_list) {
-                    getHistoryOrderList();
-                } else {
-                    getUnHandleOrderList();
+    private class OnOrderListSwipeRefreshListener implements SwipeRefreshLayout.OnRefreshListener {
+        @Override
+        public void onRefresh() {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    if (flag_list) {
+                        getHistoryOrderList();
+                    } else {
+                        getUnHandleOrderList();
+                    }
+                    mHandler.sendEmptyMessage(1);
                 }
-                mHandler.sendEmptyMessage(1);
-            }
-        }).start();
+            }).start();
+        }
     }
-}
 
 
     @Override
@@ -856,222 +871,222 @@ private class OnOrderListSwipeRefreshListener implements SwipeRefreshLayout.OnRe
         unregisterReceiver(mBroadcastReceiver);
     }
 
-private class MyHandler extends Handler {
-    @Override
-    public void handleMessage(Message msg) {
-        super.handleMessage(msg);
-        switch (msg.what) {
-            case 1:
-                //手动下拉 刷新 订单列表
-                //setRefreshing(false) 停止刷新动画
-                swipeRefreshLayout.setRefreshing(false);
-                //mMyAdapter.notifyDataSetChanged();
-                //swipeRefreshLayout.setEnabled(false);
-                break;
-            case 2:
-                //点击 radio button ,刷新 订单列表
-                if (flag_list == UNHANDLELIST) {
-                    main_rb_unhandlelist.setChecked(true);
-                }
-                mMyAdapter.setFlag(false);
-                mMyAdapter.notifyDataSetChanged();
-                break;
-            case 3:
-                //adapter中，选中订单列表 某订单，发送消息，访问网络，获取详情列表 javabean
-                Bundle bundle = msg.getData();
-                orderTime = bundle.getString("orderTime");
-                orderRoomId = bundle.getString("orderRoomId");
-                orderNumber = bundle.getString("orderNumber");
-                orderStatus = bundle.getString("orderStatus");
-                getDetailList(orderStatus, orderNumber, false);
-                break;
-            case 4:
-                //刷新详情列表
-                refreshDetailList();
-                break;
-            default:
-                break;
-        }
-    }
-}
-
-private class AutoUpdateServiceConnection implements ServiceConnection {
-    private AutoUpdateService myService;
-
-    @Override
-    public void onServiceConnected(ComponentName name, IBinder service) {
-        myService = ((AutoUpdateService.AutoUpdateServiceBinder) service).getService();
-        myService.setOnMessageListener(new OnMessageListener() {
-            @Override
-            public void onUpdate(final int isUpdate) {
-                Log.d("Service", "onUpdate");
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (isUpdate == Constant.MSG_NET_ERR) {
-                            if (mNewOrderDialog != null && !mNewOrderDialog.isShowing()) {
-                                bt_update_dialog.setText("网络连接断开，请检查网络");
-                                mNewOrderDialog.show();
-                            }
-                            return;
-                        }
-                        if (isUpdate == Constant.MSG_NET_OK) {
-                            if (mNewOrderDialog != null && mNewOrderDialog.isShowing()) {
-                                mNewOrderDialog.dismiss();
-                            }
-                            return;
-                        }
-
-                        if (!application.isPrintAuto() && mNewOrderDialog != null && !mNewOrderDialog.isShowing()) {
-                            //设置为不自动打印，显示新订单对话框
-                            bt_update_dialog.setText("您有新订单，请及时处理");
-                            mNewOrderDialog.show();
-                        } else if (application.isPrintAuto() && isOrderPrinting == false) {
-                            //打印新订单
-                            //1、访问网络，获取新的订单
-                            getUnHandleOrderList();
-                            //获取新订单后，就判断是否打印新订单，是自动打印新订单，就打印
-                            flag_list = UNHANDLELIST;
-                            main_rb_unhandlelist.setChecked(true);
-                        }
+    private class MyHandler extends Handler {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case 1:
+                    //手动下拉 刷新 订单列表
+                    //setRefreshing(false) 停止刷新动画
+                    swipeRefreshLayout.setRefreshing(false);
+                    //mMyAdapter.notifyDataSetChanged();
+                    //swipeRefreshLayout.setEnabled(false);
+                    break;
+                case 2:
+                    //点击 radio button ,刷新 订单列表
+                    if (flag_list == UNHANDLELIST) {
+                        main_rb_unhandlelist.setChecked(true);
                     }
-                });
+                    mMyAdapter.setFlag(false);
+                    mMyAdapter.notifyDataSetChanged();
+                    break;
+                case 3:
+                    //adapter中，选中订单列表 某订单，发送消息，访问网络，获取详情列表 javabean
+                    Bundle bundle = msg.getData();
+                    orderTime = bundle.getString("orderTime");
+                    orderRoomId = bundle.getString("orderRoomId");
+                    orderNumber = bundle.getString("orderNumber");
+                    orderStatus = bundle.getString("orderStatus");
+                    getDetailList(orderStatus, orderNumber, false);
+                    break;
+                case 4:
+                    //刷新详情列表
+                    refreshDetailList();
+                    break;
+                default:
+                    break;
             }
-        });
-    }
-
-    @Override
-    public void onServiceDisconnected(ComponentName name) {
-
-    }
-}
-
-
-private class MyOnNavigationItemSelectedListener implements NavigationView.OnNavigationItemSelectedListener {
-    @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.nav_homepage:
-                mDrawerLayout.closeDrawers();
-                break;
-            case R.id.nav_conncet:
-                //跳转到 打印服务连接界面
-                openPortDialogueClicked();
-                mDrawerLayout.closeDrawers();
-                break;
-            case R.id.nav_settings:
-                //跳转到 打印服务连接界面
-                openSettings();
-                mDrawerLayout.closeDrawers();
-                break;
-            default:
-                break;
         }
-        return true;
     }
-}
+
+    private class AutoUpdateServiceConnection implements ServiceConnection {
+        private AutoUpdateService myService;
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            myService = ((AutoUpdateService.AutoUpdateServiceBinder) service).getService();
+            myService.setOnMessageListener(new OnMessageListener() {
+                @Override
+                public void onUpdate(final int isUpdate) {
+                    Log.d("Service", "onUpdate");
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (isUpdate == Constant.MSG_NET_ERR) {
+                                if (mNewOrderDialog != null && !mNewOrderDialog.isShowing()) {
+                                    bt_update_dialog.setText("网络连接断开，请检查网络");
+                                    mNewOrderDialog.show();
+                                }
+                                return;
+                            }
+                            if (isUpdate == Constant.MSG_NET_OK) {
+                                if (mNewOrderDialog != null && mNewOrderDialog.isShowing()) {
+                                    mNewOrderDialog.dismiss();
+                                }
+                                return;
+                            }
+
+                            if (!application.isPrintAuto() && mNewOrderDialog != null && !mNewOrderDialog.isShowing()) {
+                                //设置为不自动打印，显示新订单对话框
+                                bt_update_dialog.setText("您有新订单，请及时处理");
+                                mNewOrderDialog.show();
+                            } else if (application.isPrintAuto() && isOrderPrinting == false) {
+                                //打印新订单
+                                //1、访问网络，获取新的订单
+                                getUnHandleOrderList();
+                                //获取新订单后，就判断是否打印新订单，是自动打印新订单，就打印
+                                flag_list = UNHANDLELIST;
+                                main_rb_unhandlelist.setChecked(true);
+                            }
+                        }
+                    });
+                }
+            });
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+
+        }
+    }
+
+
+    private class MyOnNavigationItemSelectedListener implements NavigationView.OnNavigationItemSelectedListener {
+        @Override
+        public boolean onNavigationItemSelected(MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.nav_homepage:
+                    mDrawerLayout.closeDrawers();
+                    break;
+                case R.id.nav_conncet:
+                    //跳转到 打印服务连接界面
+                    openPortDialogueClicked();
+                    mDrawerLayout.closeDrawers();
+                    break;
+                case R.id.nav_settings:
+                    //跳转到 打印服务连接界面
+                    openSettings();
+                    mDrawerLayout.closeDrawers();
+                    break;
+                default:
+                    break;
+            }
+            return true;
+        }
+    }
 
 
 /*****************************************************************************************************************************/
 /*****************************************************************************************************************************/
 
-/**
- * 打印相关代码
- */
-class PrinterServiceConnection implements ServiceConnection {
-    @Override
-    public void onServiceDisconnected(ComponentName name) {
-        Log.i("ServiceConnection", "onServiceDisconnected() called");
-        mGpService = null;
-    }
+    /**
+     * 打印相关代码
+     */
+    class PrinterServiceConnection implements ServiceConnection {
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            Log.i("ServiceConnection", "onServiceDisconnected() called");
+            mGpService = null;
+        }
 
-    @Override
-    public void onServiceConnected(ComponentName name, IBinder service) {
-        mGpService = GpService.Stub.asInterface(service);
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            mGpService = GpService.Stub.asInterface(service);
+        }
     }
-}
 
     private BroadcastReceiver mBroadcastReceiver = new PrintAboutBroadcastReceiver();
 
-private class PrintAboutBroadcastReceiver extends BroadcastReceiver {
-    @Override
-    public void onReceive(Context context, Intent intent) {
-        String action = intent.getAction();
-        Log.d("TAG", action);
-        // GpCom.ACTION_DEVICE_REAL_STATUS 为广播的IntentFilter
-        if (action.equals(GpCom.ACTION_DEVICE_REAL_STATUS)) {
+    private class PrintAboutBroadcastReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            Log.d("TAG", action);
+            // GpCom.ACTION_DEVICE_REAL_STATUS 为广播的IntentFilter
+            if (action.equals(GpCom.ACTION_DEVICE_REAL_STATUS)) {
 
-            // 业务逻辑的请求码，对应哪里查询做什么操作
-            int requestCode = intent.getIntExtra(GpCom.EXTRA_PRINTER_REQUEST_CODE, -1);
-            // 判断请求码，是则进行业务操作
-            if (requestCode == MAIN_QUERY_PRINTER_STATUS) {
+                // 业务逻辑的请求码，对应哪里查询做什么操作
+                int requestCode = intent.getIntExtra(GpCom.EXTRA_PRINTER_REQUEST_CODE, -1);
+                // 判断请求码，是则进行业务操作
+                if (requestCode == MAIN_QUERY_PRINTER_STATUS) {
 
-                int status = intent.getIntExtra(GpCom.EXTRA_PRINTER_REAL_STATUS, 16);
-                String str;
-                if (status == GpCom.STATE_NO_ERR) {
-                    str = "打印机正常";
-                } else {
-                    str = "打印机 ";
-                    if ((byte) (status & GpCom.STATE_OFFLINE) > 0) {
-                        str += "脱机";
+                    int status = intent.getIntExtra(GpCom.EXTRA_PRINTER_REAL_STATUS, 16);
+                    String str;
+                    if (status == GpCom.STATE_NO_ERR) {
+                        str = "打印机正常";
+                    } else {
+                        str = "打印机 ";
+                        if ((byte) (status & GpCom.STATE_OFFLINE) > 0) {
+                            str += "脱机";
+                        }
+                        if ((byte) (status & GpCom.STATE_PAPER_ERR) > 0) {
+                            str += "缺纸";
+                        }
+                        if ((byte) (status & GpCom.STATE_COVER_OPEN) > 0) {
+                            str += "打印机开盖";
+                        }
+                        if ((byte) (status & GpCom.STATE_ERR_OCCURS) > 0) {
+                            str += "打印机出错";
+                        }
+                        if ((byte) (status & GpCom.STATE_TIMES_OUT) > 0) {
+                            str += "查询超时";
+                        }
                     }
-                    if ((byte) (status & GpCom.STATE_PAPER_ERR) > 0) {
-                        str += "缺纸";
+
+                    Toast.makeText(getApplicationContext(), "打印机：" + mPrinterIndex + " 状态：" + str, Toast.LENGTH_SHORT)
+                            .show();
+                } else if (requestCode == REQUEST_PRINT_LABEL) {
+                    int status = intent.getIntExtra(GpCom.EXTRA_PRINTER_REAL_STATUS, 16);
+                    if (status == GpCom.STATE_NO_ERR) {
+                        sendLabel();
+                    } else {
+                        Toast.makeText(MainActivity.this, "query printer status error", Toast.LENGTH_SHORT).show();
                     }
-                    if ((byte) (status & GpCom.STATE_COVER_OPEN) > 0) {
-                        str += "打印机开盖";
-                    }
-                    if ((byte) (status & GpCom.STATE_ERR_OCCURS) > 0) {
-                        str += "打印机出错";
-                    }
-                    if ((byte) (status & GpCom.STATE_TIMES_OUT) > 0) {
-                        str += "查询超时";
+                } else if (requestCode == REQUEST_PRINT_RECEIPT) {
+                    int status = intent.getIntExtra(GpCom.EXTRA_PRINTER_REAL_STATUS, 16);
+                    if (status == GpCom.STATE_NO_ERR) {
+                        sendReceipt();
+                    } else {
+                        Toast.makeText(MainActivity.this, "query printer status error", Toast.LENGTH_SHORT).show();
                     }
                 }
-
-                Toast.makeText(getApplicationContext(), "打印机：" + mPrinterIndex + " 状态：" + str, Toast.LENGTH_SHORT)
-                        .show();
-            } else if (requestCode == REQUEST_PRINT_LABEL) {
-                int status = intent.getIntExtra(GpCom.EXTRA_PRINTER_REAL_STATUS, 16);
-                if (status == GpCom.STATE_NO_ERR) {
-                    sendLabel();
-                } else {
-                    Toast.makeText(MainActivity.this, "query printer status error", Toast.LENGTH_SHORT).show();
+            } else if (action.equals(GpCom.ACTION_RECEIPT_RESPONSE)) {
+                if (--mTotalCopies > 0) {
+                    sendReceiptWithResponse();
                 }
-            } else if (requestCode == REQUEST_PRINT_RECEIPT) {
-                int status = intent.getIntExtra(GpCom.EXTRA_PRINTER_REAL_STATUS, 16);
-                if (status == GpCom.STATE_NO_ERR) {
-                    sendReceipt();
-                } else {
-                    Toast.makeText(MainActivity.this, "query printer status error", Toast.LENGTH_SHORT).show();
+            } else if (action.equals(GpCom.ACTION_LABEL_RESPONSE)) {
+                byte[] data = intent.getByteArrayExtra(GpCom.EXTRA_PRINTER_LABEL_RESPONSE);
+                int cnt = intent.getIntExtra(GpCom.EXTRA_PRINTER_LABEL_RESPONSE_CNT, 1);
+                String d = new String(data, 0, cnt);
+                /**
+                 * 这里的d的内容根据RESPONSE_MODE去判断返回的内容去判断是否成功，具体可以查看标签编程手册SET
+                 * RESPONSE指令
+                 * 该sample中实现的是发一张就返回一次,这里返回的是{00,00001}。这里的对应{Status,######,ID}
+                 * 所以我们需要取出STATUS
+                 */
+                Log.d("LABEL RESPONSE", d);
+
+                if (--mTotalCopies > 0 && d.charAt(1) == 0x00) {
+                    sendLabelWithResponse();
                 }
             }
-        } else if (action.equals(GpCom.ACTION_RECEIPT_RESPONSE)) {
-            if (--mTotalCopies > 0) {
-                sendReceiptWithResponse();
-            }
-        } else if (action.equals(GpCom.ACTION_LABEL_RESPONSE)) {
-            byte[] data = intent.getByteArrayExtra(GpCom.EXTRA_PRINTER_LABEL_RESPONSE);
-            int cnt = intent.getIntExtra(GpCom.EXTRA_PRINTER_LABEL_RESPONSE_CNT, 1);
-            String d = new String(data, 0, cnt);
-            /**
-             * 这里的d的内容根据RESPONSE_MODE去判断返回的内容去判断是否成功，具体可以查看标签编程手册SET
-             * RESPONSE指令
-             * 该sample中实现的是发一张就返回一次,这里返回的是{00,00001}。这里的对应{Status,######,ID}
-             * 所以我们需要取出STATUS
-             */
-            Log.d("LABEL RESPONSE", d);
-
-            if (--mTotalCopies > 0 && d.charAt(1) == 0x00) {
-                sendLabelWithResponse();
-            }
-        }
 //            else if(action.equals(GpCom.ACTION_DEVICE_STATUS)){
 //                //打印完成广播
 //            }
-    }
+        }
 
-}
+    }
 
     void sendReceipt() {
 
