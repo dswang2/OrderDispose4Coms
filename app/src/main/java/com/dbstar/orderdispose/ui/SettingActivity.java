@@ -267,7 +267,7 @@ public class SettingActivity extends AppCompatActivity implements CompoundButton
         String service = "";
         if(set_et_ip.hasFocus()){
             //有焦点，说明在编辑状态，收集参数，保存，显示为只读
-            set_bt_ipset.setText("设置");
+            set_bt_ipset.setText("查看");
             service = set_et_ip.getText().toString();
 
             //对IP地址进行判断，确定是IP地址进行保存，否则toast提示
